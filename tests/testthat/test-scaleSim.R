@@ -57,3 +57,20 @@ test_that("aldex2 works with coda scale samples passed", {
   truth <- row.names(aldex.fit)
   expect_true(length(truth) == 0)
 })
+
+test_that("scale does not change diff.btw estimates", {
+  set.seed(1)
+  data(selex)
+  #subset for efficiency
+  selex <- selex[1201:1600,]
+  conds <- c(rep("NS", 7), rep("S", 7))
+  
+  x.all <- aldex(selex, conds, mc.samples=128, test="t", effect=TRUE,
+                 include.sample.summary=FALSE, gamma = NULL, bayesEst = FALSE, denom="all", verbose=FALSE, paired.test=FALSE)
+  
+  x.gamma <- aldex(selex, conds, mc.samples=128, test="t", effect=TRUE,
+                   include.sample.summary=FALSE, gamma = 1, bayesEst = FALSE, denom="all", verbose=FALSE, paired.test=FALSE)
+  
+  diff = x.all$diff.btw - x.gamma$diff.btw
+  expect_true(abs(mean(diff)) < 0.5)
+})

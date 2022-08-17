@@ -197,10 +197,11 @@ if (verbose == TRUE) message("dirichlet samples complete")
         for(i in 1:length(p)){
           geo_means <- log(apply(p[[i]],2,gm))
           noise <- sapply(col_var, FUN = function(sd){stats::rnorm(mc.samples, 0, sqrt(sd))})
-          noise_mean <- rowMeans(noise)
+          noise_trans <- sweep(noise,1, conds_mat[i,], "*")
+          noise_mean <- rowMeans(noise_trans)
 
-          scale_samples[i,] <- geo_means + noise_mean
-          l2p[[i]] <- sweep(log2(p[[i]]), 2,  scale_samples[i,], "-")
+          scale_samples[i,] <- exp(geo_means + noise_mean)
+          l2p[[i]] <- sweep(log2(p[[i]]), 2,  log2(scale_samples[i,]), "-")
         }
       } else if(length(gamma) >1 & is.null(dim(gamma))){ ##Vector case/scale sim + senstitivity
         warning("A vector was supplied for scale.samples. To run a sensitivity analysis, use 'aldex.senAnalysis()'.")
@@ -214,12 +215,13 @@ if (verbose == TRUE) message("dirichlet samples complete")
         scale_samples <- matrix(NA, length(p), mc.samples)
         
         for(i in 1:length(p)){
-          geo_means <- log(apply(p[[i]],2,gm))
+          geo_means <- apply(p[[i]],2,gm)
           noise <- sapply(col_var, FUN = function(sd){stats::rnorm(mc.samples, 0, sqrt(sd))})
-          noise_mean <- rowMeans(noise)
+          noise_trans <- sweep(noise,1, conds_mat[i,], "*")
+          noise_mean <- rowMeans(noise_trans)
           
-          scale_samples[i,] <- geo_means + noise_mean
-          l2p[[i]] <- sweep(log2(p[[i]]), 2,  scale_samples[i,], "-")
+          scale_samples[i,] <- exp(geo_means + noise_mean)
+          l2p[[i]] <- sweep(log2(p[[i]]), 2,  log2(scale_samples[i,]), "-")
         }
         
       } else{ ##User input of scale samples
