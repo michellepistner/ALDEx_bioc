@@ -21,17 +21,21 @@ t.fast <- function(data, group, paired, bayesEst){
       
       t <- multtest::mt.teststat(data[, paired.order], as.numeric(grp1)[paired.order],
                                  test = "pairt", nonpara = "n")
+      num.denom <- multtest::mt.teststat.num.denum(data[, paired.order], as.numeric(grp1)[paired.order],
+                                                   test = "pairt", nonpara = "n")
+      
       df <- length(i.1) - 1
       sp <- apply(data[, grp1] - data[, grp2], 1, sd)
-      return(list(t = t, sp = sp))
+      return(list(t = t, sp = sp, num.denom = num.denom))
       
     } else{
       
       t <- multtest::mt.teststat(data, as.numeric(grp1), test = "t", nonpara = "n")
+      num.denom <- multtest::mt.teststat.num.denum(data, as.numeric(grp1), test = "t", nonpara = "n")
       s1 <- apply(data[, grp1], 1, sd)
       s2 <- apply(data[, grp2], 1, sd)
       df <- ( (s1^2/n1 + s2^2/n2)^2 )/( (s1^2/n1)^2/(n1-1) + (s2^2/n2)^2/(n2-1) )
-      return(list(t = t, s1 = s1, s2 = s2))
+      return(list(t = t, s1 = s1, s2 = s2, num.denom = num.denom, df = df))
     }
   } else{
     if(paired){
@@ -119,3 +123,4 @@ wilcox.fast <- function(data, group, paired){
     }
   }
 }
+

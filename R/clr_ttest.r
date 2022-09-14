@@ -116,7 +116,7 @@ aldex.ttest <- function(clr, paired.test=FALSE, hist.plot=FALSE, verbose=FALSE, 
     return(z)
   } else{
     t.obs.matrix <- as.data.frame(matrix(1, nrow = feature.number, ncol = mc.instances))
-    sp.matrix <- t.obs.matrix # duplicate result container
+    #sp.matrix <- t.obs.matrix # duplicate result container
     lfc.obs.matrix <- t.obs.matrix # duplicate result container
     lfc.null.matrix <- t.obs.matrix # duplicate result container
     
@@ -134,18 +134,18 @@ aldex.ttest <- function(clr, paired.test=FALSE, hist.plot=FALSE, verbose=FALSE, 
       t.input <- sapply(mc.all, function(y){y[, mc.i]})
       t.hold <- t.fast(t.input, setAsBinary, paired.test, bayesEst)
       t.obs.matrix[, mc.i] <- t.hold$t
-      if(paired.test){
-        sp.matrix[, mc.i] <- sqrt(t.hold$sp^2/n1)
-      } else{
-        sp.matrix[, mc.i] <- sqrt((t.hold$s1^2/n1) + (t.hold$s2^2/n2))
-      }
-      lfc.obs.matrix[ ,mc.i] <- t.obs.matrix[, mc.i] * sp.matrix[, mc.i]
-      lfc.null.matrix[, mc.i] <- rt(feature.number, n1+n2-2) * sp.matrix[, mc.i]
+      #if(paired.test){
+      #  sp.matrix[, mc.i] <- sqrt(t.hold$sp^2/(n1+n2))
+      #} else{
+      #  sp.matrix[, mc.i] <- sqrt((t.hold$s1^2/n1) + (t.hold$s2^2/n2))
+      #}
+      lfc.obs.matrix[ ,mc.i] <- t.hold$num.denom[,1]
+      lfc.null.matrix[, mc.i] <- rt(feature.number, t.hold$df) * t.hold$num.denom[,2]
     }
     
     ##Calculating |lfc.obs| - |lfc.null|
     lfc.between <- abs(lfc.obs.matrix) - abs(lfc.null.matrix)
-    #lfc.between <- lfc.obs.matrix - lfc.null.matrix
+    
     lfc.est <- rowMeans(as.matrix(lfc.between))
     lfc.obs <- rowMeans(as.matrix(lfc.obs.matrix))
     p.val <- apply(as.matrix(lfc.between), 1, FUN = function(vec){ecdf(vec)(0)})
