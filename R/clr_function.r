@@ -191,7 +191,8 @@ if (verbose == TRUE) message("dirichlet samples complete")
         conds_mat <- matrix(conds, nrow = length(p))
         conds_mat <- apply(conds_mat, 2, FUN = function(vec) as.numeric(as.factor(vec)))
         conds_mat <- apply(conds_mat, 2, FUN = function(vec) vec - mean(vec))##Centering
-        col_var <- gamma^2/apply(conds_mat, 2, var)
+        col_var <- apply(conds_mat, 2, var)
+        col_var <- ifelse(col_var == 0, 0, gamma^2/col_var)
         scale_samples <- matrix(NA, length(p), mc.samples)
         
         for(i in 1:length(p)){
